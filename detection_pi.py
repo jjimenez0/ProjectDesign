@@ -1,60 +1,55 @@
 import cv2
+import tkinter as tk
 from picamera2 import Picamera2
+import numpy as np
 from ultralytics import YOLO
-from tkinter import Tk, Button, Canvas
-from PIL import Image, ImageTk
 
-# Initialize Picamera2
-picam = Picamera2()
+# Initialize the camera and YOLO model
+camera = Picamera2()
+camera.configure(camera.create_still_configuration())
+trained_model = YOLO("/home/t49/Downloads/best_model.pt")
 
-# Set up camera configuration
-camera_config = picam.create_still_configuration()
-picam.configure(camera_config)
-
-# Initialize YOLO model
-model = YOLO("/path/to/your/yolo_model.pt")  # Replace with your model path
-
-# Function to capture an image and process it with the YOLO model
+# Function to capture an image, run YOLO inference, and display the result
 def capture_and_process():
-    # Capture image
-    picam.start()
-    image_path = "/home/pi/captured_image.jpg"  # Replace with your desired path
-    picam.capture_file(image_path)
-    picam.stop()
+    # Capture an image from the camera
+    camera.start()
+    image = camera.capture_array()
+    camera.stop()
 
-    # Load the captured image
-    img = cv2.imread(image_path)
+    # Convert the image from BGR to RGB for displaying
+    image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
-    # Perform inference
-    results = model(img)
+    # Run YOLO inference
+    results = trained_model(image)
+
+    # Get bounding boxes
+    boxes = results[0].boxes.xyxy.cpu().numpy().astype(int)
 
     # Draw bounding boxes on the image
-    for box in results[0].boxes.xyxy:
-        x1, y1, x2, y2 = map(int, box[:4])  # Bounding box coordinates
-        cv2.rectangle(img, (x1, y1), (x2, y2), (0, 255, 0), 2)  # Green rectangle
+    for box in boxes:
+        x1, y1, x2, y2 = box
+        cv2.rectangle(image_rgb, (x1, y1), (x2, y2), (0, 255, 0), 2)
 
-    # Convert the image to a format suitable for tkinter
-    img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-    pil_img = Image.fromarray(img_rgb)
-    tk_img = ImageTk.PhotoImage(pil_img)
+    # Convert the image to Tkinter-compatible format
+    height, width, _ = image_rgb.shape
+    image_tk = tk.PhotoImage(data=cv2.imencode('.png', image_rgb)[1].tobytes())
 
-    # Display the image with bounding boxes on the canvas
-    canvas.delete("all")  # Clear any previous content
-    canvas.create_image(0, 0, anchor="nw", image=tk_img)
-    canvas.image = tk_img  # Keep a reference to prevent garbage collection
+    # Display the image on the canvas
+    canvas.config(width=width, height=height)
+    canvas.create_image(0, 0, anchor=tk.NW, image=image_tk)
+    canvas.image = image_tk  # Keep a reference to avoid garbage collection
 
-# Initialize tkinter GUI
-root = Tk()
-root.title("Capture and Detect")
-root.geometry("800x600")
+# Initialize the Tkinter GUI
+root = tk.Tk()
+root.title("Capture and Process Image")
 
-# Canvas to display the image
-canvas = Canvas(root, width=640, height=480, bg="black")
-canvas.pack(pady=20)
+# Create a Canvas to display the image
+canvas = tk.Canvas(root)
+canvas.pack()
 
-# Capture button
-capture_button = Button(root, text="Capture", command=capture_and_process, font=("Helvetica", 14))
-capture_button.pack()
+# Create a button to capture and process the image
+capture_button = tk.Button(root, text="Capture", command=capture_and_process, font=("Helvetica", 14))
+capture_button.pack(pady=10)
 
-# Run tkinter main loop
+# Run the Tkinter main loop
 root.mainloop()
