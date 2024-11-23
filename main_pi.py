@@ -23,7 +23,7 @@ def play_audio_and_display_image(word):
     tts_engine.runAndWait()
 
     # Load and display the associated image
-    image_file = os.path.join("word_images", f"{word}.png")
+    image_file = os.path.join("/home/t49/Downloads/word_images", f"{word}.png")
     if os.path.exists(image_file):
         word_image = PhotoImage(file=image_file)
         canvas.delete("all")  # Clear the canvas
@@ -130,7 +130,7 @@ words = [
 ]
 
 # Load the trained YOLO model
-trained_model = YOLO("YOLO_best_model.pt")
+trained_model = YOLO("/home/t49/Downloads/best_model.pt")
 
 # Initialize the OCR reader
 reader = easyocr.Reader(['en'], gpu=False)
