@@ -1,19 +1,23 @@
 import random
 import cv2
-import pyttsx3
 from ultralytics import YOLO
 import easyocr
+from picamera2 import Picamera2, Preview
 import os
-from tkinter import Tk, filedialog, Label, Button, Canvas, PhotoImage
+from tkinter import Tk, Label, Button, Canvas, PhotoImage
 
 # Global variables for scoring and control
 score = 0
 word_count = 0
 max_words = 10
 random_word = None
-uploaded_once = False
+
+# Initialize Picamera2
+picam = Picamera2()
+picam.configure(picam.create_still_configuration())
 
 # Initialize TTS engine
+import pyttsx3
 tts_engine = pyttsx3.init()
 
 # Function to play audio using pyttsx3 and display the word image
@@ -35,32 +39,21 @@ def play_audio_and_display_image(word):
             300, 150, text="Image not found", font=("Helvetica", 18), fill="red"
         )
 
-# Function to upload an image via tkinter
-def upload_image():
-    global uploaded_once
-    if uploaded_once:
-        result_label.config(text="You have already uploaded an image for this word.", fg="red")
-        return None
-    file_path = filedialog.askopenfilename(
-        title="Select an Image",
-        filetypes=[("Image Files", "*.jpg *.jpeg *.png *.bmp")]
-    )
-    if file_path:
-        uploaded_once = True
-        upload_button.config(state="disabled")  # Disable the upload button
-    return file_path
+# Function to capture an image from the camera
+def capture_image():
+    image_path = "/home/t49/Downloads/captured_image.jpg"
+    picam.start()
+    picam.capture_file(image_path)
+    picam.stop()
+    return image_path
 
-# Function to process the uploaded image
+# Function to process the captured image
 def process_image():
-    global random_word, score, uploaded_once
+    global random_word, score
 
-    # Open file dialog to upload the image
-    uploaded_image_path = upload_image()
-
-    if not uploaded_image_path:
-        return
-
-    img = cv2.imread(uploaded_image_path)
+    # Capture an image
+    captured_image_path = capture_image()
+    img = cv2.imread(captured_image_path)
 
     # Perform inference
     results = trained_model(img)
@@ -102,7 +95,7 @@ def process_image():
 
 # Function to select a random word, voice it, and display the associated image
 def select_random_word():
-    global random_word, word_count, uploaded_once
+    global random_word, word_count
 
     # Check if the maximum word count is reached
     if word_count >= max_words:
@@ -112,9 +105,6 @@ def select_random_word():
 
     # Move to the next word
     word_count += 1
-    uploaded_once = False  # Reset the upload flag
-    upload_button.config(state="normal")  # Re-enable the upload button
-
     random_word = random.choice(words)
     word_label.config(text=f"Spell This Word: {random_word}")
     result_label.config(text="")  # Clear previous result
@@ -148,9 +138,9 @@ word_label.pack(pady=10)
 canvas = Canvas(root, width=600, height=300)
 canvas.pack()
 
-# Button to upload and process an image
-upload_button = Button(root, text="Upload and Process Image", command=process_image, font=("Helvetica", 14))
-upload_button.pack(pady=10)
+# Button to check spelling using the camera
+check_button = Button(root, text="Check Spelling", command=process_image, font=("Helvetica", 14))
+check_button.pack(pady=10)
 
 # Next button to select a new word
 next_button = Button(root, text="Next", command=select_random_word, font=("Helvetica", 14))
