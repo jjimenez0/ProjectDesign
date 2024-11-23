@@ -30,12 +30,14 @@ def capture_and_process():
         x1, y1, x2, y2 = box
         cv2.rectangle(image_rgb, (x1, y1), (x2, y2), (0, 255, 0), 2)
 
+    # Resize the image to 600x400 for display
+    resized_image = cv2.resize(image_rgb, (600, 400))
+
     # Convert the image to Tkinter-compatible format
-    height, width, _ = image_rgb.shape
-    image_tk = tk.PhotoImage(data=cv2.imencode('.png', image_rgb)[1].tobytes())
+    image_tk = tk.PhotoImage(data=cv2.imencode('.png', resized_image)[1].tobytes())
 
     # Display the image on the canvas
-    canvas.config(width=width, height=height)
+    canvas.config(width=600, height=400)
     canvas.create_image(0, 0, anchor=tk.NW, image=image_tk)
     canvas.image = image_tk  # Keep a reference to avoid garbage collection
 
@@ -44,7 +46,7 @@ root = tk.Tk()
 root.title("Capture and Process Image")
 
 # Create a Canvas to display the image
-canvas = tk.Canvas(root)
+canvas = tk.Canvas(root, width=600, height=400)
 canvas.pack()
 
 # Create a button to capture and process the image
