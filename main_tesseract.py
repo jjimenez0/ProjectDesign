@@ -76,11 +76,11 @@ def process_image():
         gray_cropped_img = cv2.cvtColor(cropped_img, cv2.COLOR_BGR2GRAY)
         _, binary_img = cv2.threshold(gray_cropped_img, 128, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
 
-        # Perform OCR using Tesseract
-        ocr_results = pytesseract.image_to_string(
-            binary_img, config='--psm 8 -c tessedit_char_whitelist=ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-        )
-        letter = ocr_results.strip().upper() if ocr_results else "X"
+        # Perform OCR using PyTesseract with lower PSM values
+        letter = pytesseract.image_to_string(
+            binary_img,
+            config='--psm 10 -c tessedit_char_whitelist=ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+        ).strip()
 
         # Add the detected letter to the array
         detected_letters.append(letter)
