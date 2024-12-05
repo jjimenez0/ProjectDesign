@@ -34,18 +34,16 @@ def correct_spelling(input_text):
 
 # Function to play audio and display the word image
 def play_audio_and_display_image(word):
+    # Speak the word
     tts_engine.say(word)
     tts_engine.runAndWait()
 
-    image_file = os.path.join("/home/t49/Downloads/word_images", f"{word}.png")
-    if os.path.exists(image_file):
-        word_image = PhotoImage(file=image_file)
-        canvas.delete("all")
-        canvas.create_image(300, 150, image=word_image, anchor="center")
-        canvas.image = word_image
-    else:
-        canvas.delete("all")
-        canvas.create_text(300, 150, text="Image not found", font=("Helvetica", 18), fill="red")
+    # Capture and display an image from the camera
+    captured_image_path = capture_image()
+    img = PhotoImage(file=captured_image_path)
+    canvas.delete("all")
+    canvas.create_image(300, 150, image=img, anchor="center")
+    canvas.image = img
 
 # Function to capture an image
 def capture_image():
