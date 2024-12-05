@@ -3,7 +3,7 @@ import cv2
 import pytesseract
 from picamera2 import Picamera2
 from ultralytics import YOLO
-from PIL import Image, ImageTk
+import numpy as np
 
 # Initialize the camera and the YOLO model
 picam = Picamera2()
@@ -74,11 +74,19 @@ def capture_and_detect():
     # Convert the image to RGB for display in Tkinter
     img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
     img_resized = cv2.resize(img_rgb, (600, 400))
-    img_tk = ImageTk.PhotoImage(image=Image.fromarray(img_resized))
+
+    # Convert the OpenCV image to Tkinter PhotoImage-compatible format
+    img_tk = convert_cv_to_tk(img_resized)
 
     # Update the canvas with the captured image
     canvas.create_image(0, 0, anchor=tk.NW, image=img_tk)
     canvas.image = img_tk  # Keep a reference to avoid garbage collection
+
+# Function to convert OpenCV image to Tkinter PhotoImage
+def convert_cv_to_tk(img):
+    img_bgr = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
+    img_data = cv2.imencode('.ppm', img_bgr)[1].tobytes()  # Encode to a format supported by PhotoImage
+    return tk.PhotoImage(data=img_data)
 
 # Button to capture an image and process it
 capture_button = tk.Button(root, text="Capture and Detect", command=capture_and_detect, font=("Helvetica", 14))
