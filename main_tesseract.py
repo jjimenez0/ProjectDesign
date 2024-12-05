@@ -1,3 +1,4 @@
+
 import random
 import cv2
 from ultralytics import YOLO
@@ -114,15 +115,23 @@ def select_random_word():
 
 # List of words in all caps
 words = [
-    "APPLE", "BALL", "BOOK", "CUP", "DOG", "FISH", "STAR", "SUN", "TREE", "COLD",
-    "FAMILY", "FAST", "GREEN", "HAPPY", "HOUSE", "JUMP", "RED", "SING", "YELLOW",
-    "BEACH", "DOCTOR", "FARMER", "FOREST", "MOUNTAIN", "QUIET", "RIVER", "SUMMER",
-    "TEACHER", "WINTER", "ANCIENT", "CLASSROOM", "EDUCATION", "ENVIRONMENT",
-    "HOMEWORK", "INNOVATION", "KNOWLEDGE", "LANGUAGE", "RESEARCH", "SCIENCE"
-]
+    'A', 'I', 'AM', 'AT', 'DO', 'GO', 'HE',
+    'IF', 'IN', 'IS', 'IT', 'ME', 'MY', 'NO',
+    'OF', 'OH', 'ON', 'SO', 'TO', 'UP', 'US',
+    'WE', 'YES', 'AND', 'BED', 'BIG', 'BOY',
+    'BUT', 'CAN', 'CAR', 'CAT', 'COW', 'DAD', 'DAY',
+    'DID', 'DOG', 'FAT', 'FOR', 'FUN', 'GET', 'HAD',
+    'HAT', 'HEN', 'HIM', 'HIS', 'LET', 'MAN', 'MAY',
+    'MOM', 'NOT', 'OLD', 'ONE', 'PAN', 'PET', 'PIG',
+    'RAN', 'RAT', 'RED', 'SAT', 'SEE', 'SHE', 'SIT',
+    'SIX', 'SUN', 'TEN', 'THE', 'TOP', 'TOY', 'TWO',
+    'WAS', 'YOU', 'BOOK', 'HOME', 'INTO', 'LOOK', 'PLAY',
+    'STOP', 'THIS', 'WILL', 'GOOD'
+    ]
+
 
 # Load the trained YOLO model
-trained_model = YOLO("/home/t49/Downloads/best_model.pt")
+trained_model = YOLO("/home/t49/Downloads/YOLO_BEST.pt")
 
 # Initialize tkinter GUI
 root = Tk()
@@ -151,3 +160,5 @@ result_label.pack(pady=10)
 
 # Run the tkinter main loop
 root.mainloop()
+
+
